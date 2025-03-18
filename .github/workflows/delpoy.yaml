@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  push:
+  workflow_dispatch: {}
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+
+  build:
+    runs-on: [self-hosted, windows-2022]
+
+    env:
+      DOTNET_INSTALL_DIR: '/tmp/setup-dotnet'
+      DOTNET_BUILD_CONFIGURATION: Release
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.FC_REPO_CHECKOUT_ALL }}
+        submodules: recursive
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      if: runner.name == 'Hosted Agent'
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore .\src\dbup-cli\dbup-cli.csproj
+
+    - name: Build
+      run: dotnet build -c ${{ env.DOTNET_BUILD_CONFIGURATION }} --no-restore .\src\dbup-cli\dbup-cli.csproj
+
+    - name: Test
+      run: dotnet test -c ${{ env.DOTNET_BUILD_CONFIGURATION }} --no-build --verbosity normal mc.core.csproj
+
+    - name: Package
+      run: dotnet pack -c ${{ env.DOTNET_BUILD_CONFIGURATION }} --no-build ./src/dbup-cli/dbup-cli.csproj
+
+    - name: Push
+      run: dotnet nuget push .\src\dbup-cli\nupkg\**.nupkg --source https://nuget.pkg.github.com/rmc0207/index.json --api-key ${{ secrets.GITHUB_TOKEN }} 
