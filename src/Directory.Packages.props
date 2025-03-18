@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="CommandLineParser" Version="2.8.0" />
+    <PackageVersion Include="dbup-cockroachdb" Version="1.0.4" />
+    <PackageVersion Include="dbup-core" Version="4.5.0" />
+    <PackageVersion Include="dbup-mysql" Version="4.5.0" />
+    <PackageVersion Include="dbup-postgresql" Version="4.5.0" />
+    <PackageVersion Include="dbup-sqlserver" Version="4.5.0" />
+    <PackageVersion Include="Docker.DotNet" Version="3.125.5" />
+    <PackageVersion Include="DotNetEnv" Version="2.1.1" />
+    <PackageVersion Include="FakeItEasy" Version="5.1.0" />
+    <PackageVersion Include="FluentAssertions" Version="5.6.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="1.4.0" />
+    <PackageVersion Include="MSTest.TestFramework" Version="1.4.0" />
+    <PackageVersion Include="MySql.Data" Version="8.0.20" />
+    <PackageVersion Include="Npgsql" Version="9.0.3" />
+    <PackageVersion Include="Optional" Version="4.0.0" />
+    <PackageVersion Include="System.Text.Encoding.CodePages" Version="9.0.3" />
+    <PackageVersion Include="YamlDotNet" Version="9.1.4" />
+  </ItemGroup>
+</Project>
