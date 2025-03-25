@@ -65,5 +65,5 @@ jobs:
           dotnet nuget push `
           ./src/dbup-cli/nupkg/**.nupkg `
             --source https://nuget.pkg.github.com/rmc0207/index.json `
-            --skip-duplicate
+            --skip-duplicate `
             --api-key ${{ secrets.GITHUB_TOKEN }} 
