@@ -29,7 +29,7 @@ jobs:
         run: ./.github/scripts-common/dotnet/set-build-configuration.ps1
 
       - name: Clean the build directory
-        run: dotnet clean --configuration ${{ env.DOTNET_BUILD_CONFIGURATION }}
+        run: dotnet clean --configuration ${{ env.DOTNET_BUILD_CONFIGURATION }} ./src/dbup-cli
 
       - name: Restore dependencies
         env:
