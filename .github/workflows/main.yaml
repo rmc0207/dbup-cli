@@ -56,7 +56,7 @@ jobs:
             -p:DebugSymbols=true `
             -p:DebugType=embedded `
             ./src/dbup-cli
-
+            
       - name: Push
         if: github.ref_name == 'main' || startsWith(github.ref_name, 'feature/')
         env:
@@ -64,5 +64,6 @@ jobs:
         run: |
           dotnet nuget push `
           ./src/dbup-cli/nupkg/**.nupkg `
-            --source github `
+            --source https://nuget.pkg.github.com/rmc0207/index.json `
             --skip-duplicate
+            --api-key ${{ secrets.GITHUB_TOKEN }} 
