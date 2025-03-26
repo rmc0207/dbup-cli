@@ -55,6 +55,7 @@ jobs:
             -c ${{ env.DOTNET_BUILD_CONFIGURATION }} `
             -p:DebugSymbols=true `
             -p:DebugType=embedded `
+            -p:AssemblyName=fc.dbup-cli `
             ./src/dbup-cli
             
       - name: Push
@@ -66,4 +67,4 @@ jobs:
           ./src/dbup-cli/nupkg/**.nupkg `
             --source https://nuget.pkg.github.com/rmc0207/index.json `
             --skip-duplicate `
-            --api-key ${{ secrets.GITHUB_TOKEN }} 
+            --api-key ${{ secrets.GITHUB_TOKEN }}
