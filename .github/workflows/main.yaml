@@ -10,6 +10,8 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -66,8 +68,7 @@ jobs:
             ./src/dbup-cli
 
       - name: Push
-        # if: github.ref_name == 'main' || startsWith(github.ref_name, 'feature/')
-        if: github.ref_name == 'main'
+        if: github.ref_name == 'main' || startsWith(github.ref_name, 'feature/')
         run: |
           dotnet nuget push `
           ./src/dbup-cli/nupkg/**.nupkg `
@@ -76,6 +77,7 @@ jobs:
             --api-key ${{ secrets.GITHUB_TOKEN }}
 
       - name: Package ZIP archives
+        if: github.ref_name == 'main' || startsWith(github.ref_name, 'feature/')
         run: |
           [string] $binDirRoot = '${{ github.workspace }}/src/dbup-cli/bin/${{ steps.build-config.outputs.configuration }}'
           [string] $artifactsDir = '${{ github.workspace }}/artifacts'
@@ -93,3 +95,13 @@ jobs:
               Pop-Location
             }
           }
+
+      - name: Generate a release
+        uses: ncipollo/release-action@v1
+        if: github.ref_name == 'main' || startsWith(github.ref_name, 'feature/')
+        with:
+          allowUpdates: ${{ github.ref_name != 'main' }}
+          replacesArtifacts: ${{ github.ref_name != 'main' }}
+          removeArtifacts: ${{ github.ref_name != 'main' }}
+          artifacts: "./artifacts/*.zip"
+          tag: ${{ steps.version.outputs.semVer }}
