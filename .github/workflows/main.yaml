@@ -31,6 +31,7 @@ jobs:
           DOTNET_INSTALL_DIR: ~/.dotnet
         with:
           dotnet-version: |
+            6.0.x
             8.0.x
             9.0.x
             10.0.x
@@ -56,35 +57,22 @@ jobs:
       - name: Test
         run: dotnet test --no-build --verbosity normal ./src/dbup-cli
 
-      - name: Package
-        run: |
-          dotnet pack `
-            --no-restore `
-            -c ${{ steps.build-config.outputs.configuration }} `
-            -p:DebugSymbols=true `
-            -p:DebugType=embedded `
-            -p:AssemblyName=fc.dbup-cli `
-            -p:PackageVersion=${{ steps.version.outputs.semVer }} `
-            ./src/dbup-cli
-
-      - name: Push
+      - name: Publish and package ZIP archives
         if: github.ref_name == 'main' || startsWith(github.ref_name, 'feature/')
         run: |
-          dotnet nuget push `
-          ./src/dbup-cli/nupkg/**.nupkg `
-            --source https://nuget.pkg.github.com/rmc0207/index.json `
-            --skip-duplicate `
-            --api-key ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Package ZIP archives
-        if: github.ref_name == 'main' || startsWith(github.ref_name, 'feature/')
-        run: |
-          [string] $binDirRoot = '${{ github.workspace }}/src/dbup-cli/bin/${{ steps.build-config.outputs.configuration }}'
+          [string] $publishDir = '${{ github.workspace }}/publish'
           [string] $artifactsDir = '${{ github.workspace }}/artifacts'
           if (!(Test-Path $artifactsDir)) { New-Item -Path $artifactsDir -ItemType Directory -Force }
 
-          @('net8.0', 'net9.0', 'net10.0') | ForEach-Object {
-            Push-Location "${binDirRoot}/$($_)/publish"
+          @('net6.0', 'net8.0', 'net9.0', 'net10.0') | ForEach-Object {
+            Write-Host "Building '$($_)'..."
+            dotnet publish `
+              -c ${{ steps.build-config.outputs.configuration }} `
+              -p:Version=${{ steps.version.outputs.semVer }} `
+              --framework $_ `
+              -o "${publishDir}/$($_)" ./src/dbup-cli
+
+            Push-Location "${publishDir}/$($_)"
 
             try {
               [string] $filename = "fc.dbup-cli.$($_).zip"
