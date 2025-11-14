@@ -16,9 +16,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Git Version
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.2.0
+
+      - name: Determine Version
         id: version
-        uses: codacy/git-version@2.8.6
+        uses: gittools/actions/gitversion/execute@v4.2.0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -45,7 +48,7 @@ jobs:
             --no-restore `
             -c ${{ steps.build-config.outputs.configuration }} `
             -p:DebugSymbols=true -p:DebugType=embedded `
-            -p:PackageVersion=${{ steps.version.outputs.version }} `
+            -p:PackageVersion=${{ steps.version.outputs.semVer }} `
             ./src/dbup-cli
 
       - name: Test
@@ -59,7 +62,7 @@ jobs:
             -p:DebugSymbols=true `
             -p:DebugType=embedded `
             -p:AssemblyName=fc.dbup-cli `
-            -p:PackageVersion=${{ steps.version.outputs.version }} `
+            -p:PackageVersion=${{ steps.version.outputs.semVer }} `
             ./src/dbup-cli
 
       - name: Push
