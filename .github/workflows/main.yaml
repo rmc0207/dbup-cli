@@ -74,3 +74,22 @@ jobs:
             --source https://nuget.pkg.github.com/rmc0207/index.json `
             --skip-duplicate `
             --api-key ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package ZIP archives
+        run: |
+          [string] $binDirRoot = '${{ github.workspace }}/src/dbup-cli/bin/${{ steps.build-config.outputs.configuration }}'
+          [string] $artifactsDir = '${{ github.workspace }}/artifacts'
+          if (!(Test-Path $artifactsDir)) { New-Item -Path $artifactsDir -ItemType Directory -Force }
+
+          @('net8.0', 'net9.0', 'net10.0') | ForEach-Object {
+            Push-Location "${binDirRoot}/$($_)/publish"
+
+            try {
+              [string] $filename = "fc.dbup-cli.$($_).zip"
+
+              Write-Host "Creating artifact '${filename}'..."
+              Compress-Archive -Path *.* -DestinationPath "${artifactsDir}/${filename}" -CompressionLevel Optimal
+            } finally {
+              Pop-Location
+            }
+          }
