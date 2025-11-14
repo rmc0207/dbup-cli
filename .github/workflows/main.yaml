@@ -13,6 +13,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Git Version
         id: version
@@ -33,9 +35,6 @@ jobs:
         run: |
           [string] $configuration = if ('${{ github.ref_name }}' -eq 'main') { 'Release' } else { 'Debug' }
           "configuration=${configuration}" | Out-File -Path $env:GITHUB_OUTPUT -Encoding ascii -Append
-
-      - name: Clean the build directory
-        run: dotnet clean --configuration ${{ steps.build-config.outputs.configuration }} ./src/dbup-cli
 
       - name: Restore dependencies
         run: dotnet restore ./src/dbup-cli
