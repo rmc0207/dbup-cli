@@ -14,7 +14,7 @@ namespace DbUp.Cli.Tests.TestInfrastructure
 
         public string Log => logBuilder.ToString();
 
-        public void WriteInformation(string format, params object[] args)
+        public void LogInformation(string format, params object[] args)
         {
             var formattedMsg = string.Format(format, args);
             var value = "Info:         " + formattedMsg;
@@ -23,7 +23,7 @@ namespace DbUp.Cli.Tests.TestInfrastructure
             InfoMessages.Add(formattedMsg);
         }
 
-        public void WriteWarning(string format, params object[] args)
+        public void LogWarning(string format, params object[] args)
         {
             var formattedValue = string.Format(format, args);
             var value = "Warn:         " + formattedValue;
@@ -32,7 +32,7 @@ namespace DbUp.Cli.Tests.TestInfrastructure
             WarnMessages.Add(formattedValue);
         }
 
-        public void WriteError(string format, params object[] args)
+        public void LogError(string format, params object[] args)
         {
             var formattedMessage = string.Format(format, args);
             var value = "Error:        " + formattedMessage;
@@ -41,11 +41,26 @@ namespace DbUp.Cli.Tests.TestInfrastructure
             ErrorMessages.Add(formattedMessage);
         }
 
-        public void WriteDbOperation(string operation)
+        public void LogDbOperation(string operation)
         {
             var value = "DB Operation: " + operation;
             Console.WriteLine(value);
             logBuilder.AppendLine(value);
+        }
+
+        public void LogTrace(string format, params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LogDebug(string format, params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LogError(Exception ex, string format, params object[] args)
+        {
+            throw new NotImplementedException();
         }
     }
 }

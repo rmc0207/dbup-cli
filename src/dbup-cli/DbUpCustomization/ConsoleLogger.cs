@@ -5,7 +5,12 @@ namespace DbUp.Cli
 {
     public class ConsoleLogger: IUpgradeLog
     {
-        public void WriteError(string format, params object[] args)
+        public void LogDebug(string format, params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LogError(string format, params object[] args)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             try
@@ -18,12 +23,22 @@ namespace DbUp.Cli
             }
         }
 
-        public void WriteInformation(string format, params object[] args)
+        public void LogError(Exception ex, string format, params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LogInformation(string format, params object[] args)
         {
             Console.WriteLine(string.Format(format, args));
         }
 
-        public void WriteWarning(string format, params object[] args)
+        public void LogTrace(string format, params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LogWarning(string format, params object[] args)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             try

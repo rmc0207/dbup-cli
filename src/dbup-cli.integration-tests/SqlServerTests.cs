@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using FluentAssertions;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Data.Common;
