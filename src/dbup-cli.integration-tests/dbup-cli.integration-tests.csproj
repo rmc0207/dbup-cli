@@ -13,7 +13,7 @@
     <PackageReference Include="MSTest.TestFramework" />
     <PackageReference Include="MySql.Data" />
     <PackageReference Include="Npgsql" />
-    <PackageReference Include="System.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dbup-cli.tests.core\dbup-cli.tests.core.csproj" />

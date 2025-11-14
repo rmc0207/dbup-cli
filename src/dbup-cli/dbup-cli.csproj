@@ -61,7 +61,7 @@
     <PackageReference Include="DotNetEnv" />
     <PackageReference Include="Npgsql" />
     <PackageReference Include="Optional" />
-    <PackageReference Include="System.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
     <PackageReference Include="System.Text.Encoding.CodePages" />
     <PackageReference Include="YamlDotNet" />
   </ItemGroup>
