@@ -10,61 +10,86 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.FC_REPO_CHECKOUT_ALL }}
-          submodules: true
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.2.0
+
+      - name: Determine Version
+        id: version
+        uses: gittools/actions/gitversion/execute@v4.2.0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         env:
           DOTNET_INSTALL_DIR: ~/.dotnet
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: |
+            6.0.x
+            8.0.x
+            9.0.x
+            10.0.x
 
       - name: Determine the build configuration
-        shell: pwsh
-        run: ./.github/scripts-common/dotnet/set-build-configuration.ps1
-
-      - name: Clean the build directory
-        run: dotnet clean --configuration ${{ env.DOTNET_BUILD_CONFIGURATION }} ./src/dbup-cli
+        id: build-config
+        run: |
+          [string] $configuration = if ('${{ github.ref_name }}' -eq 'main') { 'Release' } else { 'Debug' }
+          "configuration=${configuration}" | Out-File -Path $env:GITHUB_OUTPUT -Encoding ascii -Append
 
       - name: Restore dependencies
-        env:
-          FC_PACKAGE_AUTH_READ_TOKEN: ${{ secrets.FC_PACKAGE_AUTH_READ_TOKEN }}
         run: dotnet restore ./src/dbup-cli
 
       - name: Build
         run: |
           dotnet build `
             --no-restore `
-            -c ${{ env.DOTNET_BUILD_CONFIGURATION }} `
+            -c ${{ steps.build-config.outputs.configuration }} `
             -p:DebugSymbols=true -p:DebugType=embedded `
+            -p:PackageVersion=${{ steps.version.outputs.semVer }} `
             ./src/dbup-cli
 
       - name: Test
         run: dotnet test --no-build --verbosity normal ./src/dbup-cli
 
-      - name: Package
+      - name: Publish and package ZIP archives
         if: github.ref_name == 'main' || startsWith(github.ref_name, 'feature/')
         run: |
-          dotnet pack `
-            --no-restore `
-            -c ${{ env.DOTNET_BUILD_CONFIGURATION }} `
-            -p:DebugSymbols=true `
-            -p:DebugType=embedded `
-            -p:AssemblyName=fc.dbup-cli `
-            ./src/dbup-cli
-            
-      - name: Push
+          [string] $publishDir = '${{ github.workspace }}/publish'
+          [string] $artifactsDir = '${{ github.workspace }}/artifacts'
+          if (!(Test-Path $artifactsDir)) { New-Item -Path $artifactsDir -ItemType Directory -Force }
+
+          @('net6.0', 'net8.0', 'net9.0', 'net10.0') | ForEach-Object {
+            Write-Host "Building '$($_)'..."
+            dotnet publish `
+              -c ${{ steps.build-config.outputs.configuration }} `
+              -p:Version=${{ steps.version.outputs.semVer }} `
+              --framework $_ `
+              -o "${publishDir}/$($_)" ./src/dbup-cli
+
+            Push-Location "${publishDir}/$($_)"
+
+            try {
+              [string] $filename = "fc.dbup-cli.$($_).zip"
+
+              Write-Host "Creating artifact '${filename}'..."
+              Compress-Archive -Path *.* -DestinationPath "${artifactsDir}/${filename}" -CompressionLevel Optimal
+            } finally {
+              Pop-Location
+            }
+          }
+
+      - name: Generate a release
+        uses: ncipollo/release-action@v1
         if: github.ref_name == 'main' || startsWith(github.ref_name, 'feature/')
-        env:
-          FC_PACKAGE_AUTH_READ_TOKEN: ${{ secrets.FC_PACKAGE_AUTH_ALL_TOKEN }}
-        run: |
-          dotnet nuget push `
-          ./src/dbup-cli/nupkg/**.nupkg `
-            --source https://nuget.pkg.github.com/rmc0207/index.json `
-            --skip-duplicate `
-            --api-key ${{ secrets.GITHUB_TOKEN }}
+        with:
+          allowUpdates: ${{ github.ref_name != 'main' }}
+          replacesArtifacts: ${{ github.ref_name != 'main' }}
+          removeArtifacts: ${{ github.ref_name != 'main' }}
+          artifacts: "./artifacts/*.zip"
+          tag: ${{ steps.version.outputs.semVer }}
