@@ -7,10 +7,10 @@
   <ItemGroup>
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
     <PackageVersion Include="dbup-cockroachdb" Version="1.0.4" />
-    <PackageVersion Include="dbup-core" Version="6.0.15" />
-    <PackageVersion Include="dbup-mysql" Version="6.1.0" />
-    <PackageVersion Include="dbup-postgresql" Version="6.1.5" />
-    <PackageVersion Include="dbup-sqlserver" Version="6.0.16" />
+    <PackageVersion Include="dbup-core" Version="5.0.87" />
+    <PackageVersion Include="dbup-mysql" Version="5.0.44" />
+    <PackageVersion Include="dbup-postgresql" Version="5.0.40" />
+    <PackageVersion Include="dbup-sqlserver" Version="5.0.41" />
     <PackageVersion Include="Docker.DotNet" Version="3.125.15" />
     <PackageVersion Include="DotNetEnv" Version="3.1.1" />
     <PackageVersion Include="FakeItEasy" Version="8.3.0" />
