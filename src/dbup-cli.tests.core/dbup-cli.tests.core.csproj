@@ -4,7 +4,7 @@
     <RootNamespace>DbUp.Cli.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dbup-cli\dbup-cli.csproj" />

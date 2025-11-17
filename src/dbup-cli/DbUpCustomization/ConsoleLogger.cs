@@ -5,7 +5,20 @@ namespace DbUp.Cli
 {
     public class ConsoleLogger: IUpgradeLog
     {
-        public void WriteError(string format, params object[] args)
+        public void LogDebug(string format, params object[] args)
+        {
+            Console.ForegroundColor = ConsoleColor.Gray;
+            try
+            {
+                Console.WriteLine($"[DBG] {string.Format(format, args)}");
+            }
+            finally
+            {
+                Console.ResetColor();
+            }
+        }
+
+        public void LogError(string format, params object[] args)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             try
@@ -18,12 +31,38 @@ namespace DbUp.Cli
             }
         }
 
-        public void WriteInformation(string format, params object[] args)
+        public void LogError(Exception ex, string format, params object[] args)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            try
+            {
+                Console.WriteLine($"[ERR] {ex.GetType()} '{ex.Message}': {string.Format(format, args)}");
+            }
+            finally
+            {
+                Console.ResetColor();
+            }
+        }
+
+        public void LogInformation(string format, params object[] args)
         {
             Console.WriteLine(string.Format(format, args));
         }
 
-        public void WriteWarning(string format, params object[] args)
+        public void LogTrace(string format, params object[] args)
+        {
+            Console.ForegroundColor = ConsoleColor.Gray;
+            try
+            {
+                Console.WriteLine($"[TRA] {string.Format(format, args)}");
+            }
+            finally
+            {
+                Console.ResetColor();
+            }
+        }
+
+        public void LogWarning(string format, params object[] args)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             try
@@ -34,7 +73,6 @@ namespace DbUp.Cli
             {
                 Console.ResetColor();
             }
-
         }
     }
 }

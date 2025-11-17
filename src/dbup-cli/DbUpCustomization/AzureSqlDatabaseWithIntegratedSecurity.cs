@@ -1,11 +1,10 @@
-﻿using DbUp.Engine.Output;
+﻿using Azure.Core;
+using Azure.Identity;
+using DbUp.Engine.Output;
 using DbUp.SqlServer;
-using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Data.SqlClient;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
-using System.Text;
 
 namespace DbUp.Cli.DbUpCustomization
 {
@@ -45,7 +44,7 @@ namespace DbUp.Cli.DbUpCustomization
             }
             catch (SqlException)
             {
-                // Failed to connect to master, lets try direct  
+                // Failed to connect to master, lets try direct
                 if (DatabaseExistsIfConnectedToDirectly(logger, connectionString, databaseName))
                     return;
 
@@ -88,7 +87,7 @@ namespace DbUp.Cli.DbUpCustomization
                 command.ExecuteNonQuery();
             }
 
-            logger.WriteInformation(@"Created database {0}", databaseName);
+            logger.LogInformation(@"Created database {0}", databaseName);
         }
 
         /// <summary>
@@ -113,7 +112,7 @@ namespace DbUp.Cli.DbUpCustomization
             // Actually we should call ALTER DATABASE [{databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
             // before DROP as for the SQL Server,
             // but it does not work with the following error message:
-            // 
+            //
             // ODBC error: State: 42000: Error: 1468 Message:'[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The operation cannot be performed on database "MYNEWDB" because it is involved in a database mirroring session or an availability group. Some operations are not allowed on a database that is participating in a database mirroring session or in an availability group.'.
             // ALTER DATABASE statement failed.
             //
@@ -125,7 +124,7 @@ namespace DbUp.Cli.DbUpCustomization
                 command.ExecuteNonQuery();
             }
 
-            logger.WriteInformation("Dropped database {0}", databaseName);
+            logger.LogInformation("Dropped database {0}", databaseName);
         }
 
         static void GetMasterConnectionStringBuilder(string connectionString, IUpgradeLog logger, out string masterConnectionString, out string databaseName)
@@ -148,7 +147,7 @@ namespace DbUp.Cli.DbUpCustomization
                 Password = string.Empty.PadRight(masterConnectionStringBuilder.Password.Length, '*')
             };
 
-            logger.WriteInformation("Master ConnectionString => {0}", logMasterConnectionStringBuilder.ConnectionString);
+            logger.LogInformation("Master ConnectionString => {0}", logMasterConnectionStringBuilder.ConnectionString);
             masterConnectionString = masterConnectionStringBuilder.ConnectionString;
         }
 
@@ -185,17 +184,19 @@ namespace DbUp.Cli.DbUpCustomization
             }
             catch
             {
-                logger.WriteInformation("Could not connect to the database directly");
+                logger.LogInformation("Could not connect to the database directly");
                 return false;
             }
         }
 
-        static string GetAccessToken(string resource = "https://database.windows.net/", string tenantId = null, string azureAdInstance = "https://login.microsoftonline.com/")
+        static string GetAccessToken(
+            string resource = "https://database.windows.net/",
+            string tenantId = null)
         {
-            return new AzureServiceTokenProvider(azureAdInstance: azureAdInstance).GetAccessTokenAsync(resource, tenantId)
-                                                                                                 .ConfigureAwait(false)
-                                                                                                 .GetAwaiter()
-                                                                                                 .GetResult();
+            var tokenCredential = new DefaultAzureCredential();
+            return tokenCredential.GetToken(
+                new TokenRequestContext(scopes: [resource + "/.default"], tenantId: tenantId) { }
+            ).Token;
         }
     }
 }

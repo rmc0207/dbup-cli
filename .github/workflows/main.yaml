@@ -78,7 +78,7 @@ jobs:
               [string] $filename = "fc.dbup-cli.$($_).zip"
 
               Write-Host "Creating artifact '${filename}'..."
-              Compress-Archive -Path *.* -DestinationPath "${artifactsDir}/${filename}" -CompressionLevel Optimal
+              Compress-Archive -Path * -DestinationPath "${artifactsDir}/${filename}" -CompressionLevel Optimal
             } finally {
               Pop-Location
             }
